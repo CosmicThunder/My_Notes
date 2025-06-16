@@ -62,9 +62,12 @@ fun Home_page(navHostController: NavHostController) {
     LaunchedEffect(Unit) {
         notesDBRef.addSnapshotListener { value, error ->
             if (error == null) {
-                val data = value?.toObjects(Notes::class.java)
+                val notes = value?.documents?.map { doc ->
+                    doc.toObject(Notes::class.java)?.copy(id = doc.id) ?: Notes()
+                } ?: emptyList()
+
                 notesList.clear()
-                notesList.addAll(data!!)
+                notesList.addAll(notes)
                 dataValue.value = true
             } else {
                 dataValue.value = false
